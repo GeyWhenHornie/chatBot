@@ -104,70 +104,69 @@ const ChatBotApp = ({
     setInputValue(e.target.value);
   };
 
-  const sendMessage = async () => {
-    if (inputValue.trim() === "") return;
+const sendMessage = async () => {
+  if (inputValue.trim() === "") return;
 
-    const newMessage = {
-      type: "prompt",
-      text: inputValue,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    const updateMessages = [...messages, newMessage];
-    setMessages(updateMessages);
-    localStorage.setItem(activeChat, JSON.stringify(updateMessages));
-    setInputValue("");
-
-    const updatedChats = chats.map((chat) => {
-      if (chat.id === activeChat) {
-        return { ...chat, messages: updateMessages };
-      }
-      return chat;
-    });
-
-    setChats(updatedChats);
-    localStorage.setItem("chats", JSON.stringify(updatedChats));
-
-    setIsTyping(true);
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: inputValue }],
-        max_tokens: 150,
-      }),
-    });
-    const data = await response.json();
-    const chatResponse = data.choices[0].message.content.trim();
-
-    const newResponse = {
-      type: "response",
-      text: chatResponse,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    const updatedMessagesWithResponse = [...updateMessages, newResponse];
-    setMessages(updatedMessagesWithResponse);
-    localStorage.setItem(
-      activeChat,
-      JSON.stringify(updatedMessagesWithResponse)
-    );
-    setIsTyping(false);
-
-    const updatedChatsWithResponse = chats.map((chat) => {
-      if (chat.id === activeChat) {
-        return { ...chat, messages: updatedMessagesWithResponse };
-      }
-      return chat;
-    });
-    setChats(updatedChatsWithResponse);
-    localStorage.setItem("chats", JSON.stringify(updatedChatsWithResponse));
+  const newMessage = {
+    type: "prompt",
+    text: inputValue,
+    timestamp: new Date().toLocaleTimeString(),
   };
+
+  const updateMessages = [...messages, newMessage];
+  setMessages(updateMessages);
+  localStorage.setItem(activeChat, JSON.stringify(updateMessages));
+  setInputValue("");
+
+  const updatedChats = chats.map((chat) => {
+    if (chat.id === activeChat) {
+      return { ...chat, messages: updateMessages };
+    }
+    return chat;
+  });
+
+  setChats(updatedChats);
+  localStorage.setItem("chats", JSON.stringify(updatedChats));
+
+  setIsTyping(true);
+
+  // Directly include the API key here:
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer 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`, // Replace with your API key
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: inputValue }],
+      max_tokens: 150,
+    }),
+  });
+
+  const data = await response.json();
+  const chatResponse = data.choices[0].message.content.trim();
+
+  const newResponse = {
+    type: "response",
+    text: chatResponse,
+    timestamp: new Date().toLocaleTimeString(),
+  };
+
+  const updatedMessagesWithResponse = [...updateMessages, newResponse];
+  setMessages(updatedMessagesWithResponse);
+  localStorage.setItem(activeChat, JSON.stringify(updatedMessagesWithResponse));
+  setIsTyping(false);
+
+  const updatedChatsWithResponse = chats.map((chat) => {
+    if (chat.id === activeChat) {
+      return { ...chat, messages: updatedMessagesWithResponse };
+    }
+    return chat;
+  });
+  setChats(updatedChatsWithResponse);
+  localStorage.setItem("chats", JSON.stringify(updatedChatsWithResponse));
+};
 
   const handleSelectChat = (id) => {
     if (id !== activeChat) {
